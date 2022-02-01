@@ -130,4 +130,5 @@ dmypy.json
 
 speech_commands_v0.02.tar.gz
 SpeechCommands
+out
 speech-keyword-spotting

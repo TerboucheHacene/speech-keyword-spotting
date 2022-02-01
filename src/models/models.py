@@ -52,23 +52,21 @@ class ClassificationModel(pl.LightningModule):
         self.model = model
         self.transforms = transforms
         self.learning_rate = learning_rate
-        self.accurcay = torchmetrics.Accuracy()
+        self.train_accuracy = torchmetrics.Accuracy()
+        self.val_accuracy = torchmetrics.Accuracy()
+        self.test_accuracy = torchmetrics.Accuracy()
 
     def forward(self, input):
         pass
 
-    def shared_step(self, batch):
+    def training_step(self, batch, batch_index):
         data, targets = batch
         data = self.transforms(data)
         output = self.model(data)
         loss = F.nll_loss(output.squeeze(), targets)
-        accuracy = self.accurcay(output.squeeze(), targets)
-        loss_dict = {"loss": loss, "accuracy": accuracy}
-        return loss_dict
-
-    def training_step(self, batch, batch_index):
-        loss_dict = self.shared_step(batch)
-
+        # self.train_accuracy(output.squeeze(), targets)
+        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
+        loss_dict = {"loss": loss, "accuracy": acc}
         for k, v in loss_dict.items():
             self.log(
                 name="train_" + k,
@@ -81,7 +79,14 @@ class ClassificationModel(pl.LightningModule):
         return loss_dict["loss"]
 
     def validation_step(self, batch, batch_index):
-        loss_dict = self.shared_step(batch)
+        data, targets = batch
+        data = self.transforms(data)
+        output = self.model(data)
+        loss = F.nll_loss(output.squeeze(), targets)
+
+        # self.val_accuracy(output.squeeze(), targets)
+        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
+        loss_dict = {"loss": loss, "accuracy": acc}
 
         for k, v in loss_dict.items():
             self.log(
@@ -93,6 +98,26 @@ class ClassificationModel(pl.LightningModule):
                 prog_bar=True,
             )
         return loss_dict["loss"]
+
+    def test_step(self, batch, batch_index):
+        data, targets = batch
+        data = self.transforms(data)
+        output = self.model(data)
+        loss = F.nll_loss(output.squeeze(), targets)
+        # self.test_accuracy(output.squeeze(), targets)
+        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
+        loss_dict = {"loss": loss, "accuracy": acc}
+
+        for k, v in loss_dict.items():
+            self.log(
+                name="test_" + k,
+                value=v,
+                logger=True,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=False,
+            )
+        return loss_dict
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
