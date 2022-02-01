@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 speech_commands_v0.02.tar.gz
+SpeechCommands
+speech-keyword-spotting

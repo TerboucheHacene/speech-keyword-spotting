@@ -1281,6 +1281,14 @@ test = ["mypy (>=0.790)", "pytest-cov (>2.10)", "mir-eval (>=0.6)", "phmdoctest 
 text = ["tqdm (>=4.41.0)", "nltk (>=3.6)", "regex (>=2021.9.24)"]
 
 [[package]]
+name = "torchsummary"
+version = "1.5.1"
+description = "Model summary in PyTorch similar to `model.summary()` in Keras"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "torchvision"
 version = "0.9.1"
 description = "image and video datasets and models for torch deep learning"
@@ -1445,7 +1453,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b00c232445feb00363d7d4599b87bc58bb64eed372fec58b764d7b9ceda84a80"
+content-hash = "77c94b1948f9675083d16bfd21439ebd8d887930761e6694c0e04c9b78fcc8f2"
 
 [metadata.files]
 absl-py = [
@@ -2485,6 +2493,10 @@ torchaudio = [
 torchmetrics = [
     {file = "torchmetrics-0.7.0-py3-none-any.whl", hash = "sha256:908f6c129ba84864176c23217ab548069a59f1db555b08f20d2f20274564f90a"},
     {file = "torchmetrics-0.7.0.tar.gz", hash = "sha256:dbfb8989086f38020045a935e83928504e1af1d84ae92b073f6a83d018f4bc00"},
+]
+torchsummary = [
+    {file = "torchsummary-1.5.1-py3-none-any.whl", hash = "sha256:10f41d1743fb918f83293f13183f532ab1bb8f6639a1b89e5f8592ec1919a976"},
+    {file = "torchsummary-1.5.1.tar.gz", hash = "sha256:981bf689e22e0cf7f95c746002f20a24ad26aa6b9d861134a14bc6ce92230590"},
 ]
 torchvision = [
     {file = "torchvision-0.9.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:da4c4f7363b60b0637354974ea0a29dbc301f66c9f25d92ed5f10637909f3500"},

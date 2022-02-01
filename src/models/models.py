@@ -62,7 +62,6 @@ class ClassificationModel(pl.LightningModule):
         data = self.transforms(data)
         output = self.model(data)
         loss = F.nll_loss(output.squeeze(), targets)
-
         accuracy = self.accurcay(output.squeeze(), targets)
         loss_dict = {"loss": loss, "accuracy": accuracy}
         return loss_dict
