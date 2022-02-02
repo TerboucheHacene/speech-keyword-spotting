@@ -61,7 +61,8 @@ class ClassificationModel(pl.LightningModule):
 
     def training_step(self, batch, batch_index):
         data, targets = batch
-        data = self.transforms(data)
+        if self.transforms is not None:
+            data = self.transforms(data)
         output = self.model(data)
         loss = F.nll_loss(output.squeeze(), targets)
         # self.train_accuracy(output.squeeze(), targets)
@@ -80,7 +81,8 @@ class ClassificationModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_index):
         data, targets = batch
-        data = self.transforms(data)
+        if self.transforms is not None:
+            data = self.transforms(data)
         output = self.model(data)
         loss = F.nll_loss(output.squeeze(), targets)
 
@@ -101,7 +103,8 @@ class ClassificationModel(pl.LightningModule):
 
     def test_step(self, batch, batch_index):
         data, targets = batch
-        data = self.transforms(data)
+        if self.transforms is not None:
+            data = self.transforms(data)
         output = self.model(data)
         loss = F.nll_loss(output.squeeze(), targets)
         # self.test_accuracy(output.squeeze(), targets)
