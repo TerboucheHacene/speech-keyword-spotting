@@ -46,8 +46,8 @@ def train(args):
 
     # data_module = SpeechDataModule(batch_size=args.batch_size, num_workers=8)
     data_module = UrbanSoundDataModule(
-        annotation_file="/home/hacene/Documents/UrbanSound8K/metadata/UrbanSound8K.csv",
-        audio_dir="/home/hacene/Documents/UrbanSound8K/audio/",
+        annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
+        audio_dir="/raid/home/labuserterbouche/workspace/UrbanSound8K/audio/",
     )
 
     trainer = Trainer(
