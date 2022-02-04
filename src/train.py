@@ -8,8 +8,9 @@ from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning import Trainer
 from pytorch_lightning.plugins import DDPPlugin
 
-from models.models import ClassificationModel, M5
-from data.data import SpeechDataModule, UrbanSoundDataModule
+from models.models import M5, VGGish
+from models.pl_modules import ClassificationModel
+from data.data_modules import SpeechDataModule, UrbanSoundDataModule
 
 
 def parse_args():
@@ -39,15 +40,24 @@ def train(args):
     )
 
     model = ClassificationModel(
-        model=M5(n_input=1, n_output=10, stride=16, n_channel=128),
+        # model=M5(n_input=1, n_output=10, stride=16, n_channel=128),
+        model=VGGish(num_classes=10, use_fc=True, pretrained=True),
         learning_rate=args.learning_rate,
         transforms=None,
     )
 
     # data_module = SpeechDataModule(batch_size=args.batch_size, num_workers=8)
+    mel_spectrogram = torchaudio.transforms.MelSpectrogram(
+        sample_rate=16000, n_fft=512, hop_length=128, n_mels=64
+    )
     data_module = UrbanSoundDataModule(
         annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
         audio_dir="/raid/home/labuserterbouche/workspace/UrbanSound8K/audio/",
+        transforms=mel_spectrogram,
+        sample_rate=16000,
+        num_samples=16000,
+        batch_size=args.batch_size,
+        num_workers=8,
     )
 
     trainer = Trainer(

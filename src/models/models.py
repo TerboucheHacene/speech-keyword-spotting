@@ -1,8 +1,8 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pytorch_lightning as pl
-import torchmetrics
+import torch
+import torch.nn as nn
+from torch import hub
 
 
 class M5(nn.Module):
@@ -41,90 +41,136 @@ class M5(nn.Module):
         return F.log_softmax(x, dim=2)
 
 
-def get_likely_index(tensor):
-    # find most likely label index for each element in the batch
-    return tensor.argmax(dim=-1)
+class VGG(nn.Module):
 
+    """The VGG network definition, composed of a features extraction module, followed by
+    an MLP model (3 FC-ReLU layers)
+    Attributes
+    ----------
+    feature_dim : int
+        dimension size of the output feature vector
+    features : nn.Module
+        neural network that extractes features
+    """
 
-class ClassificationModel(pl.LightningModule):
-    def __init__(self, model, transforms, learning_rate=0.001, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.model = model
-        self.transforms = transforms
-        self.learning_rate = learning_rate
-        self.train_accuracy = torchmetrics.Accuracy()
-        self.val_accuracy = torchmetrics.Accuracy()
-        self.test_accuracy = torchmetrics.Accuracy()
-
-    def forward(self, input):
-        pass
-
-    def training_step(self, batch, batch_index):
-        data, targets = batch
-        if self.transforms is not None:
-            data = self.transforms(data)
-        output = self.model(data)
-        loss = F.nll_loss(output.squeeze(), targets)
-        # self.train_accuracy(output.squeeze(), targets)
-        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
-        loss_dict = {"loss": loss, "accuracy": acc}
-        for k, v in loss_dict.items():
-            self.log(
-                name="train_" + k,
-                value=v,
-                logger=True,
-                on_step=True,
-                on_epoch=False,
-                prog_bar=True,
-            )
-        return loss_dict["loss"]
-
-    def validation_step(self, batch, batch_index):
-        data, targets = batch
-        if self.transforms is not None:
-            data = self.transforms(data)
-        output = self.model(data)
-        loss = F.nll_loss(output.squeeze(), targets)
-
-        # self.val_accuracy(output.squeeze(), targets)
-        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
-        loss_dict = {"loss": loss, "accuracy": acc}
-
-        for k, v in loss_dict.items():
-            self.log(
-                name="val_" + k,
-                value=v,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-                prog_bar=True,
-            )
-        return loss_dict["loss"]
-
-    def test_step(self, batch, batch_index):
-        data, targets = batch
-        if self.transforms is not None:
-            data = self.transforms(data)
-        output = self.model(data)
-        loss = F.nll_loss(output.squeeze(), targets)
-        # self.test_accuracy(output.squeeze(), targets)
-        acc = torchmetrics.functional.accuracy(output.squeeze(), targets)
-        loss_dict = {"loss": loss, "accuracy": acc}
-
-        for k, v in loss_dict.items():
-            self.log(
-                name="test_" + k,
-                value=v,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-                prog_bar=False,
-            )
-        return loss_dict
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(
-            self.parameters(), lr=self.learning_rate, weight_decay=0.0001
+    def __init__(self, features):
+        super(VGG, self).__init__()
+        self.features = features
+        self.embeddings = nn.Sequential(
+            nn.Linear(512 * 4 * 6, 4096),
+            nn.ReLU(True),
+            nn.Linear(4096, 4096),
+            nn.ReLU(True),
+            nn.Linear(4096, 128),
+            nn.ReLU(True),
         )
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
-        return [optimizer], [scheduler]
+
+        self.feature_dim = 128
+
+    def forward(self, x):
+        x = self.features(x)
+        # Transpose the output from features to
+        # remain compatible with vggish embeddings
+        x = torch.transpose(x, 1, 3)
+        x = torch.transpose(x, 1, 2)
+        x = x.contiguous()
+        x = x.view(x.size(0), -1)
+
+        return self.embeddings(x)
+
+
+def make_layers():
+    layers = []
+    in_channels = 1
+    for v in [64, "M", 128, "M", 256, 256, "M", 512, 512]:
+        if v == "M":
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+        else:
+            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
+            layers += [conv2d, nn.ReLU(inplace=True)]
+            in_channels = v
+    layers += [nn.AvgPool2d(kernel_size=(2, 4), stride=(2, 2))]
+    return nn.Sequential(*layers)
+
+
+def _vgg():
+    return VGG(make_layers())
+
+
+model_urls = {
+    "vggish": "https://github.com/harritaylor/torchvggish/"
+    "releases/download/v0.1/vggish-10086976.pth",
+    "pca": "https://github.com/harritaylor/torchvggish/"
+    "releases/download/v0.1/vggish_pca_params-970ea276.pth",
+}
+
+
+class VGGishV1(VGG, nn.Module):
+    """An implementation of the VGG network (features extraction + MLP), called VGGishV1
+    with the possiblity to load pretrained weights. The model can take as input either a
+    frame of spectrogram of a sequence of them (set the parameters 'seq' to True)
+    Parameters
+    ----------
+    pretrained : bool, optional
+        load pretrained weights or not
+    """
+
+    def __init__(self, pretrained=True, urls=model_urls, progress=True):
+        super().__init__(make_layers())
+        if pretrained:
+            state_dict = hub.load_state_dict_from_url(urls["vggish"], progress=progress)
+            super().load_state_dict(state_dict)
+
+    def forward(self, x):
+        y = VGG.forward(self, x)
+        return y
+
+
+def get_vggish_without_fc(pretrained=True):
+    model = VGGishV1(pretrained=pretrained)
+    embeddings = [*model.children()][0]
+    return embeddings
+
+
+class VGGishV2(nn.Module):
+
+    """This implementation contains only the VGG backbone (without the FC layers)"""
+
+    def __init__(self, pretrained=True):
+        super().__init__()
+        self.embedding = nn.Sequential(
+            get_vggish_without_fc(pretrained),
+            nn.AvgPool2d(kernel_size=(6, 4)),
+            nn.Flatten(),
+        )
+        self.feature_dim = 512
+
+    def forward(self, x):
+        y = self.embedding(x)
+        return y
+
+
+class VGGish(nn.Module):
+
+    """A wrapper module to choose betwenn version 01(with MLP) and version 02 (without MLP)
+    Attributes
+    ----------
+    use_fc : bool, optional
+        whether to use the FC layers or not, if True, then use version 02
+    """
+
+    def __init__(self, num_classes, use_fc=True, pretrained=True):
+        super().__init__()
+        self.num_classes = num_classes
+        if use_fc:
+            self.model = VGGishV1(pretrained)
+            self.feature_dim = 128
+        else:
+            self.model = VGGishV2(pretrained)
+            self.feature_dim = 512
+        self.fc = nn.Linear(self.feature_dim, self.num_classes)
+
+    def forward(self, x):
+        y = self.model(x)
+        y = F.log_softmax(self.fc(y), dim=-1)
+        return y
