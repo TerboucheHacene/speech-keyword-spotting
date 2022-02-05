@@ -51,8 +51,8 @@ def train(args):
         sample_rate=16000, n_fft=400, hop_length=160, n_mels=64
     )
     data_module = UrbanSoundDataModule(
-        annotation_file="/home/hacene/Documents/UrbanSound8K/metadata/UrbanSound8K.csv",
-        audio_dir="/home/hacene/Documents/UrbanSound8K/audio/",
+        annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
+        audio_dir="/raid/home/labuserterbouche/workspace/UrbanSound8K/audio/",
         transforms=mel_spectrogram,
         sample_rate=16000,
         num_samples=16000,
