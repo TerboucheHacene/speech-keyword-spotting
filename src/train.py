@@ -16,7 +16,7 @@ from data.data_modules import SpeechDataModule, UrbanSoundDataModule
 def parse_args():
     parser = argparse.ArgumentParser()
     # CLI args
-    parser.add_argument("--batch_size", type=int, default=1024 * 4)
+    parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--max_epochs", type=int, default=40)
     parser.add_argument("--learning_rate", type=float, default=5e-3)
     parser.add_argument("--momentum", type=float, default=0.5)
@@ -41,7 +41,7 @@ def train(args):
 
     model = ClassificationModel(
         # model=M5(n_input=1, n_output=10, stride=16, n_channel=128),
-        model=VGGish(num_classes=10, use_fc=True, pretrained=True),
+        model=VGGish(num_classes=10, use_fc=False, pretrained=True),
         learning_rate=args.learning_rate,
         transforms=None,
     )
@@ -62,7 +62,7 @@ def train(args):
 
     trainer = Trainer(
         max_epochs=args.max_epochs,
-        gpus=0,
+        gpus=1,
         logger=experiment,
         log_every_n_steps=1,
     )
