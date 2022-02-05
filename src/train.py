@@ -16,7 +16,7 @@ from data.data_modules import SpeechDataModule, UrbanSoundDataModule
 def parse_args():
     parser = argparse.ArgumentParser()
     # CLI args
-    parser.add_argument("--batch_size", type=int, default=512)
+    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--max_epochs", type=int, default=40)
     parser.add_argument("--learning_rate", type=float, default=5e-3)
     parser.add_argument("--momentum", type=float, default=0.5)
@@ -48,7 +48,7 @@ def train(args):
 
     # data_module = SpeechDataModule(batch_size=args.batch_size, num_workers=8)
     mel_spectrogram = torchaudio.transforms.MelSpectrogram(
-        sample_rate=16000, n_fft=512, hop_length=128, n_mels=64
+        sample_rate=16000, n_fft=400, hop_length=160, n_mels=64
     )
     data_module = UrbanSoundDataModule(
         annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
