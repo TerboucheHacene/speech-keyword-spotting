@@ -58,10 +58,14 @@ class UrbanSoundDataset(tud.Dataset):
         signal, sr = torchaudio.load(audio_sample_path)
         signal = self._resample_if_necessary(signal, sr)
         signal = self._mix_down_if_necessary(signal)
-        signal = self._cut_if_necessary(signal)
+
+        # signal = self._cut_if_necessary(signal)
         signal = self._right_pad_if_necessary(signal)
         if self.transforms is not None:
             signal = self.transforms(signal)
+            signal = signal.unfold(-1, 96, 48).unsqueeze(0)
+            signal = torch.transpose(signal, 3, 0).squeeze(3)
+
         return signal, label
 
     def _cut_if_necessary(self, signal):
@@ -97,4 +101,4 @@ class UrbanSoundDataset(tud.Dataset):
         label = self.audio_file.loc[self.audio_file.slice_file_name == audio_name].iloc[
             0, -2
         ]
-        return label
+        return torch.tensor(label)

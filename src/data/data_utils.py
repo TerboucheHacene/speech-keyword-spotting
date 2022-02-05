@@ -70,3 +70,18 @@ def collate_fn(batch):
     tensors = pad_sequence(tensors)
     targets = torch.stack(targets)
     return tensors, targets
+
+
+def collate_fn_spec(batch):
+    # A data tuple has the form:
+    # # # waveform, sample_rate, label, speaker_id, utterance_number
+    tensors, targets = [], []
+    # Gather in lists, and encode labels as indices
+    for spec, label in batch:
+        ncrops, c, h, w = spec.size()
+        tensors += [spec]
+        targets += [label.repeat(ncrops)]
+        # Group the list of tensors into a batched tensor
+    tensors = torch.cat(tensors, dim=0)
+    targets = torch.cat(targets, dim=0)
+    return tensors, targets

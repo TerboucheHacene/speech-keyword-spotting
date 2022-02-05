@@ -1,7 +1,7 @@
 import torch.utils.data as tud
 import pytorch_lightning as pl
 from .datasets import SubsetSC, UrbanSoundDataset
-from .data_utils import collate_fn
+from .data_utils import collate_fn, collate_fn_spec
 
 
 class SpeechDataModule(pl.LightningDataModule):
@@ -103,6 +103,7 @@ class UrbanSoundDataModule(pl.LightningDataModule):
             self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
+            collate_fn=collate_fn_spec,
             num_workers=self.num_workers,
             pin_memory=True,
         )
@@ -113,6 +114,7 @@ class UrbanSoundDataModule(pl.LightningDataModule):
             self.val_dataset,
             batch_size=self.batch_size,
             shuffle=False,
+            collate_fn=collate_fn_spec,
             num_workers=self.num_workers,
             pin_memory=True,
         )
@@ -123,6 +125,7 @@ class UrbanSoundDataModule(pl.LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             shuffle=False,
+            collate_fn=collate_fn_spec,
             num_workers=self.num_workers,
             pin_memory=True,
         )
