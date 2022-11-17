@@ -19,7 +19,6 @@ class ClassificationModel(pl.LightningModule):
 
     def shared_step(self, batch, batch_index):
         data, targets = batch
-        print(data.shape)
         output = self(data)
         loss = F.nll_loss(output.squeeze(), targets)
         acc = torchmetrics.functional.accuracy(output.squeeze(), targets)

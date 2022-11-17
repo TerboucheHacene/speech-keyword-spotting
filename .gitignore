@@ -128,7 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-speech_commands_v0.02.tar.gz
-SpeechCommands
-out
-speech-keyword-spotting
+artifacts/

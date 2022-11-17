@@ -9,7 +9,7 @@ import pandas as pd
 
 class SubsetSC(SPEECHCOMMANDS):
     def __init__(self, subset: str = None):
-        super().__init__("..", download=False)
+        super().__init__("artifacts/", download=False)
 
         def load_list(filename):
             filepath = os.path.join(self._path, filename)
@@ -65,6 +65,8 @@ class UrbanSoundDataset(tud.Dataset):
             signal = self.transforms(signal)
             signal = signal.unfold(-1, 96, 48).unsqueeze(0)
             signal = torch.transpose(signal, 3, 0).squeeze(3)
+            # signal = signal[0, :].unsqueeze(0)
+            # signal = signal[0:8, :]
 
         return signal, label
 

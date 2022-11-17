@@ -1,16 +1,13 @@
 # import comet_ml at the top of your file
-from comet_ml import Experiment
 from pytorch_lightning.loggers import CometLogger
 import argparse
 import torchaudio
 
-from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning import Trainer
-from pytorch_lightning.plugins import DDPPlugin
 
-from models.models import M5, VGGish
-from models.pl_modules import ClassificationModel
-from data.data_modules import SpeechDataModule, UrbanSoundDataModule
+from keyword_detector.models.models import M5, VGGish
+from keyword_detector.models.pl_modules import ClassificationModel
+from keyword_detector.data.data_modules import SpeechDataModule, UrbanSoundDataModule
 
 
 def parse_args():
@@ -37,34 +34,36 @@ def train(args):
         api_key="F8z2rvZxchPyTT2l1IawCAE7G",
         project_name="speech-keyword-spotting",
         workspace="ihssen",
+        save_dir="artifacts/",
+
     )
 
     model = ClassificationModel(
-        # model=M5(n_input=1, n_output=10, stride=16, n_channel=128),
-        model=VGGish(num_classes=10, use_fc=False, pretrained=True),
+        model=M5(n_input=1, n_output=35, stride=16, n_channel=128),
+        #model=VGGish(num_classes=10, use_fc=True, pretrained=True),
         learning_rate=args.learning_rate,
         transforms=None,
     )
 
-    # data_module = SpeechDataModule(batch_size=args.batch_size, num_workers=8)
-    mel_spectrogram = torchaudio.transforms.MelSpectrogram(
-        sample_rate=16000, n_fft=400, hop_length=160, n_mels=64
-    )
-    data_module = UrbanSoundDataModule(
-        annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
-        audio_dir="/raid/home/labuserterbouche/workspace/UrbanSound8K/audio/",
-        transforms=mel_spectrogram,
-        sample_rate=16000,
-        num_samples=16000,
-        batch_size=args.batch_size,
-        num_workers=8,
-    )
+    data_module = SpeechDataModule(batch_size=args.batch_size, num_workers=8)
+    # mel_spectrogram = torchaudio.transforms.MelSpectrogram(
+    #     sample_rate=16000, n_fft=400, hop_length=160, n_mels=64
+    # )
+    # data_module = UrbanSoundDataModule(
+    #     annotation_file="/raid/home/labuserterbouche/workspace/UrbanSound8K/metadata/UrbanSound8K.csv",
+    #     audio_dir="/raid/home/labuserterbouche/workspace/UrbanSound8K/audio/",
+    #     transforms=mel_spectrogram,
+    #     sample_rate=16000,
+    #     num_samples=16000,
+    #     batch_size=args.batch_size,
+    #     num_workers=8,
+    # )
 
     trainer = Trainer(
         max_epochs=args.max_epochs,
         gpus=1,
         logger=experiment,
-        log_every_n_steps=1,
+        log_every_n_steps=50,
     )
 
     trainer.fit(model, data_module)
