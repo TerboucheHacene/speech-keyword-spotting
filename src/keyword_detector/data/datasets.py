@@ -5,11 +5,26 @@ from torchaudio.datasets import SPEECHCOMMANDS
 import os
 import glob
 import pandas as pd
+from typing import Callable, Union, List
 
 
 class SubsetSC(SPEECHCOMMANDS):
-    def __init__(self, subset: str = None):
-        super().__init__("artifacts/", download=False)
+    """Speech Commands Dataset
+
+    Parameters
+    ----------
+    root : str
+        Path to the directory where the dataset is found or downloaded.
+    subset : str, optional
+        Subset of the dataset to consider, by default None
+        Options: "training", "validation", "testing"
+    download : bool, optional
+        Whether to download the dataset if it is not found at root path, by default False
+
+    """
+
+    def __init__(self, root="artifacts/", subset: str = None, download: bool = False):
+        super().__init__(root, download=download)
 
         def load_list(filename):
             filepath = os.path.join(self._path, filename)
@@ -28,18 +43,33 @@ class SubsetSC(SPEECHCOMMANDS):
 
 
 class UrbanSoundDataset(tud.Dataset):
-    """
-    A rapper class for the UrbanSound8K dataset.
+    """UrbanSound8K Dataset
+
+    Parameters
+    ----------
+    annotation_file : str
+        Path to the annotation file
+    audio_dir : str
+        Path to the audio directory
+    folds : Union[int, List[int]]
+        Fold number to use for training/validation/testing
+    transforms : callable, optional
+        A function/transform that takes in a waveform and returns a transformed
+        version, by default None
+    target_sample_rate : int, optional
+        Target sample rate, by default 16000
+    num_samples : int, optional
+        Number of samples to cut or pad, by default 16000
     """
 
     def __init__(
         self,
-        annotation_file,
-        audio_dir,
-        folds,
-        transforms=None,
-        target_sample_rate=16000,
-        num_samples=16000,
+        annotation_file: str,
+        audio_dir: str,
+        folds=Union[int, List[int]],
+        transforms: Callable = None,
+        target_sample_rate: int = 16000,
+        num_samples: int = 16000,
     ):
         self.audio_file = pd.read_csv(annotation_file)
         self.folds = folds
