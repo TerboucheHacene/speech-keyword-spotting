@@ -15,6 +15,7 @@ from torchmetrics import (
 )
 from typing import Callable, Tuple, Dict, Any, Sequence
 import wandb
+import json
 from keyword_detector.data.data_utils import LABELS
 
 
@@ -75,6 +76,7 @@ class SpeechLightningModel(pl.LightningModule):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+
         if self.transforms is not None:
             x = self.transforms(x)
         y = self.model(x)
@@ -232,14 +234,19 @@ class SpeechLightningModel(pl.LightningModule):
             "confusion_matrix": confusion_matrix,
             "precision_recall_curve": precision_recall_curve,
             "roc": roc_curve,
-            "accuracy": self.test_metrics["accuracy"].compute(),
-            "precision": self.test_metrics["precision"].compute(),
-            "recall": self.test_metrics["recall"].compute(),
-            "f1": self.test_metrics["f1"].compute(),
-            "auroc": self.test_metrics["auroc"].compute(),
-            "average_precision": self.test_metrics["average_precision"].compute(),
+            "accuracy": self.test_metrics["accuracy"].compute().cpu().numpy().item(),
+            "precision": self.test_metrics["precision"].compute().cpu().numpy().item(),
+            "recall": self.test_metrics["recall"].compute().cpu().numpy().item(),
+            "f1": self.test_metrics["f1"].compute().cpu().numpy().item(),
+            "auroc": self.test_metrics["auroc"].compute().cpu().numpy().item(),
+            "average_precision": self.test_metrics["average_precision"]
+            .compute()
+            .cpu()
+            .numpy()
+            .item(),
         }
-        return test_results
+        with open("artifacts/json/results.json", "w") as f:
+            json.dump(test_results, f)
 
     def configure_optimizers(self) -> Dict[str, Any]:
         optimizer = torch.optim.Adam(

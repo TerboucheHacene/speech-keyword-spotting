@@ -7,4 +7,7 @@
 
 
 
-poetry run python scripts/train.py 
+poetry run python scripts/train.py \
+    --batch_size 1024 \
+    --max_epochs 40 \
+    --learning_rate 0.001 \

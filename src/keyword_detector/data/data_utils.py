@@ -1,5 +1,5 @@
 import torch
-
+import torchaudio
 
 LABELS = [
     "marvin",
