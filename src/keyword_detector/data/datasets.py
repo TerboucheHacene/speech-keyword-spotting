@@ -1,11 +1,12 @@
-import torch
-import torchaudio
-import torch.utils.data as tud
-from torchaudio.datasets import SPEECHCOMMANDS
-import os
 import glob
+import os
+from typing import Callable, List, Union
+
 import pandas as pd
-from typing import Callable, Union, List
+import torch
+import torch.utils.data as tud
+import torchaudio
+from torchaudio.datasets import SPEECHCOMMANDS
 
 
 class SubsetSC(SPEECHCOMMANDS):
@@ -23,7 +24,7 @@ class SubsetSC(SPEECHCOMMANDS):
 
     """
 
-    def __init__(self, root="artifacts/", subset: str = None, download: bool = False):
+    def __init__(self, root="artifacts/", subset: str = "training", download: bool = False):
         super().__init__(root, download=download)
 
         def load_list(filename):

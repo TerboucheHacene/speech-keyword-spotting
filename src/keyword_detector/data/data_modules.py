@@ -1,8 +1,11 @@
-import torch.utils.data as tud
-import pytorch_lightning as pl
-from .datasets import SubsetSC, UrbanSoundDataset
-from .data_utils import collate_fn, collate_fn_spec
+from argparse import ArgumentParser
 from typing import Callable
+
+import pytorch_lightning as pl
+import torch.utils.data as tud
+
+from .data_utils import collate_fn, collate_fn_spec
+from .datasets import SubsetSC, UrbanSoundDataset
 
 
 class SpeechDataModule(pl.LightningDataModule):
@@ -18,11 +21,28 @@ class SpeechDataModule(pl.LightningDataModule):
         A function/transform that takes in a waveform and returns a transformed
     """
 
-    def __init__(self, batch_size=128, num_workers=0, transforms=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        data_dir: str,
+        batch_size: int,
+        num_workers: int,
+        transforms: Callable,
+        **kwargs,
+    ):
+        super().__init__()
+        self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.transforms = transforms
+
+    @staticmethod
+    def add_argparse_args(parent_parser: ArgumentParser) -> ArgumentParser:
+        parser = parent_parser.add_argument_group("SpeechDataModule")
+        parser.add_argument("--data_dir", type=str, default="artifacts/")
+        parser.add_argument("--batch_size", type=int, default=128)
+        parser.add_argument("--num_workers", type=int, default=0)
+        parser.set_defaults(transforms=None)
+        return parent_parser
 
     def setup(self, stage=None) -> None:
         self.train_dataset = SubsetSC(subset="training")

@@ -1,13 +1,13 @@
 # import comet_ml at the top of your file
-from pytorch_lightning.loggers import CometLogger
 import argparse
+
 import torchaudio
-
 from pytorch_lightning import Trainer
+from pytorch_lightning.loggers import CometLogger
 
-from keyword_detector.models.vgg import WrapperVGGish
-from keyword_detector.models.pl_modules import ClassificationModel
 from keyword_detector.data.data_modules import UrbanSoundDataModule
+from keyword_detector.models.pl_modules import ClassificationModel
+from keyword_detector.models.vgg import WrapperVGGish
 
 
 def parse_args():

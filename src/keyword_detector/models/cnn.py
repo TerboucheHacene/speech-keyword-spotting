@@ -1,3 +1,6 @@
+from argparse import ArgumentParser
+
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -19,7 +22,14 @@ class M5(nn.Module):
 
     """
 
-    def __init__(self, depth=1, num_classes=35, stride=16, n_channels=32):
+    def __init__(
+        self,
+        depth: int = 1,
+        num_classes: int = 35,
+        stride: int = 16,
+        n_channels: int = 32,
+        **kwargs,
+    ) -> None:
         super().__init__()
         self.conv1 = nn.Conv1d(depth, n_channels, kernel_size=80, stride=stride)
         self.bn1 = nn.BatchNorm1d(n_channels)
@@ -35,7 +45,16 @@ class M5(nn.Module):
         self.pool4 = nn.MaxPool1d(4)
         self.fc1 = nn.Linear(2 * n_channels, num_classes)
 
-    def forward(self, x):
+    @staticmethod
+    def add_model_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:
+        parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        parser.add_argument("--depth", type=int, default=1)
+        parser.add_argument("--num_classes", type=int, default=35)
+        parser.add_argument("--stride", type=int, default=16)
+        parser.add_argument("--n_channels", type=int, default=32)
+        return parser
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv1(x)
         x = F.relu(self.bn1(x))
         x = self.pool1(x)

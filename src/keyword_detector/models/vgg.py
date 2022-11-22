@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod, abstractproperty
+from argparse import ArgumentParser
 from typing import Dict, List, Union
 
 import torch
 import torch.nn as nn
-from torch import Tensor, hub
 import torch.nn.functional as F
+from torch import Tensor, hub
 
 MODEL_URLS = {
     "vggish": "https://github.com/harritaylor/torchvggish/"
@@ -200,6 +201,7 @@ class WrapperVGGish(BaseAudioFrameEncoder):
         pretrained: bool = True,
         urls: Dict[str, str] = MODEL_URLS,
         progress: bool = True,
+        **kwargs,
     ) -> None:
         super().__init__()
         self.use_mlp = use_mlp
@@ -217,8 +219,25 @@ class WrapperVGGish(BaseAudioFrameEncoder):
             num_classes,
         )
 
+    @staticmethod
+    def add_model_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:
+        parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        parser.add_argument(
+            "--num_classes", type=int, default=35, help="number of classes"
+        )
+        parser.add_argument(
+            "--pretrained", type=bool, default=True, help="load pretrained weights"
+        )
+        parser.add_argument(
+            "--use_mlp",
+            type=bool,
+            default=True,
+            help="if True, use the VGGish network with the MLP",
+        )
+        return parser
+
     @property
-    def feature_dim(self):
+    def feature_dim(self) -> int:
         return self._feature_dim
 
     def forward(self, input: Tensor) -> Tensor:
