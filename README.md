@@ -12,20 +12,20 @@ This repo implements a speech keyword spotting system.
 * Clone this repo
 * Install [poetry](https://python-poetry.org/docs/#installation), the ultimate tool for dependency management and packaging in Python, and then install the virtual environment:
 
-    poetry install
+        poetry install
 
 * To train the model, execute the following command, where you can change the parameters of the training in the CLI:
 
-    source bash\train.sh
+        source bash\train.sh
 
 * You should sign in your [Weights & Biases](https://wandb.ai/site) account and log in to track the training/validation metrics. 
 * To test a trained model, use:
 
-    source bash\test.sh
+        source bash\test.sh
 
 * To export the model to ONNX:
 
-    source bash\export.sh
+        source bash\export.sh
 
 ## Dataset
 
@@ -45,18 +45,18 @@ We deploy the model as an HTTP endpoint using FastAPI, and then dockerize the co
 
 * To build the server image:
 
-    docker build . -f scripts/deploy/fastapi/Dockerfile -t kws
+        docker build . -f scripts/deploy/fastapi/Dockerfile -t kws
 
 *  To run the model locally:
 
-    docker container run -d -p 900:80 --name myapp kws
+        docker container run -d -p 900:80 --name myapp kws
 
 * You can send a request to the server:
 
-    python scripts/deploy/request.py
+        python scripts/deploy/request.py
 
 * To deploy the app using docker compose:
 
-    docker-compose up --build
+        docker-compose up --build
 
  
