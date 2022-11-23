@@ -1,6 +1,7 @@
-import torch
 import os
 from typing import List
+
+import torch
 
 
 class Model:

@@ -2,11 +2,9 @@ from argparse import ArgumentParser
 
 import torch
 import torch.nn as nn
-from transformers import (
-    HubertForSequenceClassification,
-    Wav2Vec2FeatureExtractor,
-    Wav2Vec2ForSequenceClassification,
-)
+from transformers import (HubertForSequenceClassification,
+                          Wav2Vec2FeatureExtractor,
+                          Wav2Vec2ForSequenceClassification)
 
 
 class Wav2Vec2AudioModel(nn.Module):

@@ -8,7 +8,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11.0"
+python = ">=3.8,<3.11.0 || >=3.12.0,<4.0"
 torch = "^1.8.1" # +cu111
 torchvision = "^0.9.1" # +cu111
 torchaudio = "^0.8.1"
@@ -21,6 +21,12 @@ torchmetrics = "0.10.3"
 setuptools = "59.5.0"
 transformers = "^4.24.0"
 onnxruntime = "^1.13.1"
+pydantic = "^1.10.2"
+fastapi = "^0.87.0"
+uvicorn = "^0.20.0"
+python-multipart = "^0.0.5"
+librosa = "^0.9.2"
+soundfile = "^0.11.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -36,6 +42,8 @@ streamlit-webrtc = "^0.44.0"
 flake8 = "^4.0.1"
 isort = "^5.9.3"
 pytest = "^6.2.5"
+streamlit = "1.11"
+asyncio = "^3.4.3"
 
 [tool.poe.tasks]
 force-cuda11 = "python -m pip install torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio==0.10.1+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html"

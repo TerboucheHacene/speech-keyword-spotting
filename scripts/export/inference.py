@@ -1,7 +1,8 @@
-import os
 import argparse
-from onnxruntime import InferenceSession
+import os
+
 import numpy as np
+from onnxruntime import InferenceSession
 
 
 def main(args):

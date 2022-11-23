@@ -1,11 +1,11 @@
-import os
-import torch
 import argparse
+import os
+
+import torch
 
 from keyword_detector.cli_args.args import parse_args
 from keyword_detector.models import METHODS
 from keyword_detector.models.pl_modules import SpeechLightningModel
-
 
 RESULTS_DIR = "artifacts/results/"
 SAMPLE_RATE = 16000
