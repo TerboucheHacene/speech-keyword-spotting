@@ -36,6 +36,7 @@ class KeywordSpottingModel:
         params: AudioMetaData = Depends(),
         waveform: UploadFile = File(description="audio file"),
     ) -> SpeechKeyWord:
+        print(params, waveform)
         if not self.model:
             raise RuntimeError
         # Read audio file

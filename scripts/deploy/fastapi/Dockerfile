@@ -26,9 +26,9 @@ COPY src src
 RUN poetry install --only-root
 
 # copy needed scripts and files
-COPY scripts/deploy/ deploy/
+COPY scripts/deploy/fastapi/ deploy/
 COPY artifacts/results/custom_wav2vec2_2022-11-21_21-34-03/model.onnx artifacts/results/custom_wav2vec2_2022-11-21_21-34-03/model.onnx
 
-EXPOSE 5000
+EXPOSE 900
 
-CMD ["uvicorn", "deploy.api:app", "--host" , "0.0.0.0", "--port",  "5000"]
+CMD ["uvicorn", "deploy.api:app", "--host" , "0.0.0.0", "--port",  "900", "--root-path", "/api"]

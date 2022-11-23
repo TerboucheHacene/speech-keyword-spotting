@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: scripts/deploy/fastapi/Dockerfile
+    container_name: fastapi
+    restart: always
+    expose:
+      - 900
+  #ports:
+  #- "900:900"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: scripts/deploy/nginx/Dockerfile
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:1234"

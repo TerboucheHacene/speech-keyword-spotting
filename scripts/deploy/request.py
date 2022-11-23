@@ -1,6 +1,6 @@
 import requests
 
-url = "http://localhost:5000/predict/"
+url = "http://0.0.0.0/api/predict"
 audio_file_path = (
     "artifacts/SpeechCommands/speech_commands_v0.02/bed/0a7c2a8d_nohash_0.wav"
 )
